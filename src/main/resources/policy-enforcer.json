@@ -1,0 +1,18 @@
+{
+  "realm": "salah2-dive",
+  "auth-server-url": "http://localhost:8081",
+  "resource": "springboot-be",
+  "credentials": {
+    "secret": "WwMwAecY5Eh01As1euysVCcBzVD6UxiG"
+  },
+  "paths": [
+    {
+      "path": "/swagger-ui/*",
+      "enforcement-mode": "DISABLED"
+    },
+    {
+      "path": "/v3/api-docs/*",
+      "enforcement-mode": "DISABLED"
+    }
+  ]
+}

@@ -1,6 +1,11 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
 import java.math.BigDecimal;
 
 @Entity
@@ -8,10 +13,12 @@ public class MenuItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    public Long id;
 
     private Long menuId;
+
     private String name;
+
     private String description;
 
     @Column(name = "type_name")
@@ -22,7 +29,6 @@ public class MenuItem {
 
     private BigDecimal price;
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -78,4 +84,5 @@ public class MenuItem {
     public void setPrice(BigDecimal price) {
         this.price = price;
     }
+
 }

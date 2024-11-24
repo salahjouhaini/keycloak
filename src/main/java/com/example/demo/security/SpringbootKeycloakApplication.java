@@ -1,22 +1,24 @@
 package com.example.demo.security;
 
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
+import org.springframework.security.web.SecurityFilterChain;
 
-@SpringBootApplication
-@SecurityScheme(
-        name = "Keycloak"
-        , openIdConnectUrl = "http://localhost:8081/realms/dive-dev/.well-known/openid-configuration"
-        , scheme = "bearer"
-        , type = SecuritySchemeType.OPENIDCONNECT
-        , in = SecuritySchemeIn.HEADER
-)
+@Configuration
 public class SpringbootKeycloakApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(SpringbootKeycloakApplication.class, args);
-    }
 
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml").permitAll() // Autorise l'accès à Swagger
+                        .anyRequest().authenticated() // Sécurise toutes les autres requêtes
+                )
+                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt // Active la validation des JWT
+                );
+
+        return http.build();
+    }
 }
