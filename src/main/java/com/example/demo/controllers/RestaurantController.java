@@ -31,7 +31,7 @@ public class RestaurantController {
     MenuRepository menuRepository;
 
     @Autowired
-    MenuItemRepogsitory menuItemRepository;
+    MenuItemRepository menuItemRepository;
 
     @GetMapping
     @RequestMapping("/public/list")
