@@ -1,19 +1,23 @@
 package com.example.demo.controllers;
 
-import com.example.demo.entity.Menu;
-import com.example.demo.entity.MenuItem;
-import com.example.demo.entity.Restaurant;
-import com.example.demo.repositories.MenuItemRepository;
-import com.example.demo.repositories.MenuRepository;
-import com.example.demo.repositories.RestaurantRepository;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+
+import com.example.demo.repositories.MenuItemRepository;
+import com.example.demo.repositories.MenuRepository;
+import com.example.demo.repositories.RestaurantRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.entity.*;
+
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping("/restaurant")
@@ -21,55 +25,62 @@ import java.util.Optional;
 public class RestaurantController {
 
     @Autowired
-    private RestaurantRepository restaurantRepository;
+    RestaurantRepository restaurantRepository;
 
     @Autowired
-    private MenuRepository menuRepository;
+    MenuRepository menuRepository;
 
     @Autowired
-    private MenuItemRepository menuItemRepository;
+    MenuItemRepogsitory menuItemRepository;
 
-    @GetMapping("/public/list")
+    @GetMapping
+    @RequestMapping("/public/list")
+    //Public API
     public List<Restaurant> getRestaurants() {
         return restaurantRepository.findAll();
     }
 
-    @GetMapping("/public/menu/{restaurantId}")
+    @GetMapping
+    @RequestMapping("/public/menu/{restaurantId}")
+    //Public API
     public Menu getMenu(@PathVariable Long restaurantId) {
         Menu menu = menuRepository.findByRestaurantId(restaurantId);
-        if (menu != null) {
-            menu.setMenuItems(menuItemRepository.findAllByMenuId(menu.getId()));
-        }
+        menu.setMenuItems(menuItemRepository.findAllByMenuId(menu.id));
         return menu;
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('admin')")
-    public Restaurant createRestaurant(@RequestBody Restaurant restaurant) {
+    // admin can access (admin)
+    public Restaurant createRestaurant(Restaurant restaurant) {
         return restaurantRepository.save(restaurant);
     }
 
-    @PostMapping("/menu")
-    @PreAuthorize("hasRole('manager')")
-    public Menu createMenu(@RequestBody Menu menu) {
+    @PutMapping
+    // manager can access (suresh)
+    public Restaurant updateRestaurant(Restaurant restaurant) {
+        return restaurantRepository.save(restaurant);
+    }
+
+    @PostMapping
+    @RequestMapping("/menu")
+    // manager can access (suresh)
+    public Menu createMenu(Menu menu) {
         menuRepository.save(menu);
         menu.getMenuItems().forEach(menuItem -> {
-            menuItem.setMenuId(menu.getId());
+            menuItem.setMenuId(menu.id);
             menuItemRepository.save(menuItem);
         });
         return menu;
     }
 
-    @PutMapping("/menu/item/{itemId}/{price}")
-    @PreAuthorize("hasRole('owner')")
-    public MenuItem updateMenuItemPrice(@PathVariable Long itemId, @PathVariable BigDecimal price) {
+    @PutMapping
+    @RequestMapping("/menu/item/{itemId}/{price}")
+    // owner can access (amar)
+    public MenuItem updateMenuItemPrice(@PathVariable("itemId") Long itemId
+            , @PathVariable("price") BigDecimal price) {
         Optional<MenuItem> menuItem = menuItemRepository.findById(itemId);
-        if (menuItem.isPresent()) {
-            MenuItem item = menuItem.get();
-            item.setPrice(price);
-            menuItemRepository.save(item);
-            return item;
-        }
-        throw new RuntimeException("MenuItem not found");
+        menuItem.get().setPrice(price);
+        menuItemRepository.save(menuItem.get());
+        return menuItem.get();
     }
 }
